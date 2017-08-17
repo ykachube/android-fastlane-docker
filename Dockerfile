@@ -11,9 +11,9 @@ ENV DEBIAN_FRONTEND noninteractive
 # Android & Gradle
 ENV GRADLE_URL http://services.gradle.org/distributions/gradle-3.3-all.zip
 ENV GRADLE_HOME /usr/local/gradle-3.3
-ENV ANDROID_SDK_URL http://dl.google.com/android/android-sdk_r24.0.2-linux.tgz
+ENV ANDROID_SDK_URL http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz
 ENV ANDROID_HOME /usr/local/android-sdk-linux
-ENV ANDROID_SDK_COMPONENTS platform-tools,build-tools-23.0.1,android-23,extra-android-support,extra-android-m2repository
+ENV ANDROID_SDK_COMPONENTS platform-tools,build-tools-25.0.3,android-25,extra-android-support,extra-android-m2repository
 
 # NodeJS
 ENV NPM_CONFIG_LOGLEVEL info
@@ -24,7 +24,7 @@ ENV RUBY_MAJOR 2.3
 ENV RUBY_VERSION 2.3.3
 ENV RUBY_DOWNLOAD_SHA256 1a4fa8c2885734ba37b97ffdb4a19b8fba0e8982606db02d936e65bac07419dc
 ENV RUBYGEMS_VERSION 2.6.10
-ENV BUNDLER_VERSION 1.14.3
+ENV BUNDLER_VERSION 1.15.3
 
 
 ################################################################################################
