@@ -13,7 +13,8 @@ ENV GRADLE_URL http://services.gradle.org/distributions/gradle-3.3-all.zip
 ENV GRADLE_HOME /usr/local/gradle-3.3
 ENV ANDROID_SDK_URL http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz
 ENV ANDROID_HOME /usr/local/android-sdk-linux
-ENV ANDROID_SDK_COMPONENTS platform-tools,build-tools-25.0.3,android-25,extra-android-support,extra-android-m2repository
+ENV ANDROID_SDK_COMPONENTS_LATEST platform-tools,build-tools-25.0.3,android-25,extra-android-support,extra-android-m2repository
+ENV ANDROID_SDK_COMPONENTS_COMPATIBILITY platform-tools,build-tools-23.0.1,android-23,extra-android-support,extra-android-m2repository
 
 # NodeJS
 ENV NPM_CONFIG_LOGLEVEL info
@@ -42,7 +43,8 @@ RUN dpkg --add-architecture i386 \
   && curl -L ${ANDROID_SDK_URL} | tar xz -C /usr/local \
   && mkdir -p  /usr/local/opt/ \
   && ln -s /usr/local/android-sdk-linux /usr/local/opt/android-sdk \
-  && (while sleep 3; do echo "y"; done) | ${ANDROID_HOME}/tools/android update sdk --no-ui --all --filter "${ANDROID_SDK_COMPONENTS}"
+  && (while sleep 3; do echo "y"; done) | ${ANDROID_HOME}/tools/android update sdk --no-ui --all --filter "${ANDROID_SDK_COMPONENTS_LATEST}" \
+  && (while sleep 3; do echo "y"; done) | ${ANDROID_HOME}/tools/android update sdk --no-ui --all --filter "${ANDROID_SDK_COMPONENTS_COMPATIBILITY}"
 
 
 ################################################################################################
