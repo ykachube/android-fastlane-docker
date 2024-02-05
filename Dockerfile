@@ -1,6 +1,6 @@
 FROM java:jdk
 
-LABEL maintainer "yury.sannikov@gmail.com"
+LABEL maintainer "yury.kachubeyeu@gmail.com"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -17,14 +17,14 @@ ENV ANDROID_SDK_COMPONENTS_LATEST platform-tools,build-tools-23.0.1,build-tools-
 
 # NodeJS
 ENV NPM_CONFIG_LOGLEVEL info
-ENV NODE_VERSION 7.4.0
+ENV NODE_VERSION 18.17.0
 
 #Ruby
-ENV RUBY_MAJOR 2.3
-ENV RUBY_VERSION 2.3.3
-ENV RUBY_DOWNLOAD_SHA256 1a4fa8c2885734ba37b97ffdb4a19b8fba0e8982606db02d936e65bac07419dc
-ENV RUBYGEMS_VERSION 2.6.10
-ENV BUNDLER_VERSION 1.15.3
+ENV RUBY_MAJOR 2.7
+ENV RUBY_VERSION 2.7.2
+ENV RUBY_DOWNLOAD_SHA256 65a590313d244d48dc2ef9a9ad015dd8bc6faf821621bbb269aa7462829c75ed
+ENV RUBYGEMS_VERSION 3.1.2
+ENV BUNDLER_VERSION 2.1.4
 
 
 ################################################################################################
