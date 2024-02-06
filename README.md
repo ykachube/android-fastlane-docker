@@ -13,7 +13,7 @@ openjdk 17
 
 | Component Name | Version |
 |:---------------|--------:|
-|android-sdk|34|
+|android-sdk|latest|
 |build-tools|34|
 |nodejs|18.17.0|
 |npm|9.6.7|
