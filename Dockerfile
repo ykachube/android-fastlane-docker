@@ -1,4 +1,4 @@
-FROM java:jdk
+FROM eclipse-temurin:17-jdk-jammy
 
 LABEL maintainer "yury.kachubeyeu@gmail.com"
 
@@ -20,11 +20,11 @@ ENV NPM_CONFIG_LOGLEVEL info
 ENV NODE_VERSION 18.17.0
 
 #Ruby
-ENV RUBY_MAJOR 2.7
-ENV RUBY_VERSION 2.7.2
-ENV RUBY_DOWNLOAD_SHA256 65a590313d244d48dc2ef9a9ad015dd8bc6faf821621bbb269aa7462829c75ed
-ENV RUBYGEMS_VERSION 3.1.2
-ENV BUNDLER_VERSION 2.1.4
+#ENV RUBY_MAJOR 2.7
+#ENV RUBY_VERSION 2.7.2
+#ENV RUBY_DOWNLOAD_SHA256 65a590313d244d48dc2ef9a9ad015dd8bc6faf821621bbb269aa7462829c75ed
+#ENV RUBYGEMS_VERSION 3.1.2
+#ENV BUNDLER_VERSION 2.1.4
 
 
 ################################################################################################
@@ -35,7 +35,7 @@ ENV BUNDLER_VERSION 2.1.4
 # Dependencies
 RUN dpkg --add-architecture i386 \
   && apt-get update \
-  && apt-get install -yq libstdc++6:i386 zlib1g:i386 libncurses5:i386 ant maven --no-install-recommends \
+  && apt-get install -yq libstdc++6:i386 zlib1g:i386 libncurses5:i386 xz-utils gpg-agent dirmngr unzip gpg ant maven --no-install-recommends \
   && curl -L ${GRADLE_URL} -o /tmp/gradle-3.3-all.zip \
   && unzip /tmp/gradle-3.3-all.zip -d /usr/local \
   && rm /tmp/gradle-3.3-all.zip \
@@ -64,17 +64,19 @@ RUN set -ex \
     B9AE9905FFD7803F25714661B63B535A4C206CA9 \
     C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
   ; do \
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+    gpg --keyserver  keyserver.ubuntu.com --recv-keys "$key"; \
   done
 
 
 RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" \
-  && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
-  && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
-  && grep " node-v$NODE_VERSION-linux-x64.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
   && tar -xJf "node-v$NODE_VERSION-linux-x64.tar.xz" -C /usr/local --strip-components=1 \
-  && rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
+  && rm "node-v$NODE_VERSION-linux-x64.tar.xz"  \
   && ln -s /usr/local/bin/node /usr/local/bin/nodejs
+
+#   && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
+
+ # && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
+ #  && grep " node-v$NODE_VERSION-linux-x64.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
 
 ################################################################################################
 ###
@@ -88,50 +90,17 @@ RUN mkdir -p /usr/local/etc \
     echo 'update: --no-document'; \
   } >> /usr/local/etc/gemrc
 
-# some of ruby's build scripts are written in ruby
-#   we purge system ruby later to make sure our final image uses what we just built
-RUN set -ex \
-  \
-  && buildDeps=' \
-    bison \
-    libgdbm-dev \
-    ruby \
-    autoconf bison build-essential libssl-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev \
-  ' \
-  && apt-get install -y libtool libyaml-dev imagemagick \
-  && apt-get install -y --no-install-recommends $buildDeps \
-  && rm -rf /var/lib/apt/lists/* \
-  \
-  && wget -O ruby.tar.xz "https://cache.ruby-lang.org/pub/ruby/${RUBY_MAJOR%-rc}/ruby-$RUBY_VERSION.tar.xz" \
-  && echo "$RUBY_DOWNLOAD_SHA256 *ruby.tar.xz" | sha256sum -c - \
-  \
-  && mkdir -p /usr/src/ruby \
-  && tar -xJf ruby.tar.xz -C /usr/src/ruby --strip-components=1 \
-  && rm ruby.tar.xz \
-  \
-  && cd /usr/src/ruby \
-  \
-# hack in "ENABLE_PATH_CHECK" disabling to suppress:
-#   warning: Insecure world writable dir
-  && { \
-    echo '#define ENABLE_PATH_CHECK 0'; \
-    echo; \
-    cat file.c; \
-  } > file.c.new \
-  && mv file.c.new file.c \
-  \
-  && autoconf \
-  && ./configure --disable-install-doc --enable-shared \
-  && make -j"$(nproc)" \
-  && make install \
-  \
-  && cd / \
-  && rm -r /usr/src/ruby \
-  \
-  && gem update --system "$RUBYGEMS_VERSION"
-
-
-RUN gem install bundler --version "$BUNDLER_VERSION"
+# Install RVM (Ruby Version Manager)
+RUN  gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+RUN \curl -sSL https://get.rvm.io | bash -s stable
+# Setup RVM environment
+RUN /bin/bash -l -c "source /etc/profile.d/rvm.sh"
+# Install Ruby
+RUN /bin/bash -l -c "rvm requirements"
+RUN /bin/bash -l -c "rvm install 3.3.0"
+RUN /bin/bash -l -c "rvm use 3.3.0 --default"
+# Install Bundler
+RUN /bin/bash -l -c "gem install bundler --no-ri --no-rdoc"
 
 # install things globally, for great justice
 # and don't create ".bundle" in all our apps
